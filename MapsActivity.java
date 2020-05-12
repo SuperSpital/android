@@ -50,8 +50,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private SensorManager sensorManager;
     Sensor accelerometer;
     TextView textView;
-    JSONObject markers;
-    JSONArray markerArray;
+    JSONObject jsonMarkers;
+    JSONArray jsonArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +74,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(MapsActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
-        markers = new JSONObject();
-        markerArray = new JSONArray();
+        jsonMarkers = new JSONObject();
+        jsonArray = new JSONArray();
         StringBuilder stringBuilder;
         String response = "";
-        File file = new File(getFilesDir(), "markersArray");
+        File file = new File(getFilesDir(), "jsonArray");
         if(file.exists())
         {
             try {
@@ -100,8 +100,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
             try {
-                markers = new JSONObject(response);
-                markerArray = markers.getJSONArray("markerArray");
+                jsonMarkers = new JSONObject(response);
+                jsonArray = jsonMarkers.getJSONArray("jsonArray");
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -115,10 +115,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(this);
         mMap.setOnMapLongClickListener(this);
 
-        for(int i = 0; i<markerArray.length(); i=i+2) {
+        for(int i = 0; i<jsonArray.length(); i=i+2) {
             LatLng latLng = null;
             try {
-                latLng = new LatLng(markerArray.getDouble(i), markerArray.getDouble(i + 1));
+                latLng = new LatLng(jsonArray.getDouble(i), jsonArray.getDouble(i + 1));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -140,8 +140,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         markerList.add(marker);
 
         try {
-            markerArray.put(latLng.latitude);
-            markerArray.put(latLng.longitude);
+            jsonArray.put(latLng.latitude);
+            jsonArray.put(latLng.longitude);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -178,7 +178,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         hideButtons(w);
         markerList.clear();
         mMap.clear();
-        markerArray = new JSONArray();
+        jsonArray = new JSONArray();
         try {
             save();
         } catch (JSONException e) {
@@ -273,14 +273,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void save() throws JSONException
     {
-        markers.put("markerArray", markerArray);
-        File file = new File(getFilesDir(),"markersArray");
+        jsonMarkers.put("jsonArray", jsonArray);
+        File file = new File(getFilesDir(),"jsonArray");
         FileWriter fileWriter = null;
 
         try {
             fileWriter = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write(markers.toString());
+            bufferedWriter.write(jsonMarkers.toString());
             bufferedWriter.close();
         }
         catch (IOException e) {
